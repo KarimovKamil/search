@@ -19,18 +19,29 @@ CREATE TABLE IF NOT EXISTS students (
 );
 
 INSERT INTO students (id, name, surname, mygroup)
-  VALUES (107, 'Камиль', 'Каримов', '11-502');
+VALUES (107, 'Камиль', 'Каримов', '11-502');
 
 CREATE TABLE IF NOT EXISTS words_porter (
-  id UUID DEFAULT uuid_generate_v1(),
-  term VARCHAR(64),
+  id          UUID DEFAULT uuid_generate_v1(),
+  term        VARCHAR(64),
   articles_id VARCHAR,
   PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS words_mystem (
-  id UUID DEFAULT uuid_generate_v1(),
-  term VARCHAR(64),
+  id          UUID DEFAULT uuid_generate_v1(),
+  term        VARCHAR(64),
   articles_id VARCHAR,
   PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS terms_list (
+  term_id   UUID DEFAULT uuid_generate_v1(),
+  term_text VARCHAR UNIQUE,
+  PRIMARY KEY (term_id)
+);
+
+CREATE TABLE IF NOT EXISTS article_term (
+  article_id UUID,
+  term_id    UUID
 );
