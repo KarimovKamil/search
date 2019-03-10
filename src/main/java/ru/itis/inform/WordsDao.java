@@ -4,6 +4,7 @@ import org.postgresql.Driver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,6 +44,21 @@ public class WordsDao {
                         .append("', '")
                         .append(s)
                         .append("');");
+            }
+        }
+        jdbcTemplate.update(stringBuilder.toString());
+    }
+
+    public void saveWordsCount(Map<String, HashMap<String, Integer>> words) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Map.Entry<String, HashMap<String, Integer>> entry : words.entrySet()) {
+            for (Map.Entry<String,Integer> stringIntegerEntry : entry.getValue().entrySet()) {
+                stringBuilder.append("UPDATE article_term SET word_count = ")
+                        .append(stringIntegerEntry.getValue())
+                        .append(" WHERE term_id = (SELECT term_id FROM terms_list WHERE term_text = '")
+                        .append(entry.getKey()).append("') AND article_id = '")
+                        .append(stringIntegerEntry.getKey())
+                        .append("'::UUID;");
             }
         }
         jdbcTemplate.update(stringBuilder.toString());
