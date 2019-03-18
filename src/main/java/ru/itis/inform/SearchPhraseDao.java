@@ -21,6 +21,8 @@ public class SearchPhraseDao {
             " FROM terms_list " +
             " WHERE term_text = ?) t ON t.term_id = a.term_id)";
     private static final String GET_LINKS_BY_PHRASE_SQL_END = ") s ON ar.id = s.article_id;";
+    private static final String GET_ARTICLES_IDS_SQL = "SELECT DISTINCT article_id from article_term;";
+    private static final String GET_ARTICLE_LINK_BY_ID_SQL = "SELECT url from articles WHERE id = ?::UUID;";
 
     public SearchPhraseDao() {
         jdbcTemplate = new JdbcTemplate(DaoConfig.getDataSource());
@@ -43,5 +45,13 @@ public class SearchPhraseDao {
 
     public int getWordCount(String word) {
         return jdbcTemplate.queryForObject(GET_WORD_COUNT_SQL, new Object[]{word}, Integer.class);
+    }
+    
+    public List<String> getArticlesId() {
+        return jdbcTemplate.queryForList(GET_ARTICLES_IDS_SQL, String.class);
+    }
+    
+    public String getLinkById(String articleId) {
+        return jdbcTemplate.queryForObject(GET_ARTICLE_LINK_BY_ID_SQL, new Object[]{articleId}, String.class);
     }
 }
