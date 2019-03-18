@@ -50,7 +50,7 @@ public class CosVector {
         List<String> articles = searchPhraseDao.getArticlesId();
         HashMap<String, Double> cos = new HashMap<>();
         double idfs = 0;
-        for (Double value : cos.values()) {
+        for (Double value : wordsIdf.values()) {
             idfs += value * value;
         }
         idfs = Math.sqrt(idfs);
@@ -69,11 +69,15 @@ public class CosVector {
 
         List<Map.Entry<String, Double>> list = new ArrayList<>(cos.entrySet());
         list.sort(Comparator.comparingDouble(Map.Entry::getValue));
-        Collections.reverse(list);
-        
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getValue().isNaN() || list.get(i).getValue().isInfinite()) {
+                list.get(i).setValue(0.0);
+            }
+        }
+
         int count = 0;
         while (list.get(count).getValue() > 0.0 && count < 10) {
-            System.out.println(searchPhraseDao.getLinkById(list.get(count).getKey()));
+            System.out.println(searchPhraseDao.getLinkById(list.get(count).getKey()) + " - " + list.get(count).getValue());
             count++;
         }
     }
