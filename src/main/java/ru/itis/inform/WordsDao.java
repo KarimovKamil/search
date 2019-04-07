@@ -36,6 +36,8 @@ public class WordsDao {
             "                         WHERE a1.term_id = (SELECT a1.term_id FROM terms_list WHERE term_text = ?))))))";
     private static final String GET_WORD_TF_IDF_SQL = "SELECT tf_idf FROM article_term " +
             "WHERE term_id = (SELECT term_id FROM terms_list WHERE term_text = ?) AND article_id = ?::UUID";
+    private static final String GET_TERMS_WITH_ARTICLE_IDS = "SELECT t.*, p.articles_id " +
+            "FROM words_mystem p INNER JOIN terms_list t ON t.term_text = p.term;";
 
     public WordsDao() {
         this.jdbcTemplate = new JdbcTemplate(DaoConfig.getDataSource());
@@ -114,5 +116,28 @@ public class WordsDao {
             result = 0;
         }
         return result;
+    }
+
+    public Map<String, Map<String, Integer>> getTermsWithArticleIds() {
+        return namedJdbcTemplate.getJdbcTemplate().query(GET_TERMS_WITH_ARTICLE_IDS, rs -> {
+            Map<String, Map<String, Integer>> result = new HashMap<>();
+            while (rs.next()) {
+                String term = rs.getString("term_text");
+                String articleId = rs.getString("articles_id");
+                if (result.containsKey(term)) {
+                    Map<String, Integer> article = result.get(term);
+                    if (article.containsKey(articleId)) {
+                        article.put(articleId, article.get(articleId) + 1);
+                    } else {
+                        article.put(articleId, 1);
+                    }
+                } else {
+                    result.put(term, new HashMap<String, Integer>() {{
+                        put(articleId, 1);
+                    }});
+                }
+            }
+            return result;
+        });
     }
 }

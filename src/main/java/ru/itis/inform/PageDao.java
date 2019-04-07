@@ -1,9 +1,8 @@
 package ru.itis.inform;
 
-import org.postgresql.Driver;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import ru.itis.inform.dao.config.DaoConfig;
 
 import java.util.List;
 
@@ -13,15 +12,11 @@ public class PageDao {
             "(title, keywords, content, url, student_id) " +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_ALL = "SELECT * FROM articles;";
+    private static final String SQL_GET_URL_BY_ID = "SELECT url from articles " +
+            "WHERE id = ?::UUID;";
 
     public PageDao() {
-        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
-        dataSource.setDriverClass(Driver.class);
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/search");
-
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(DaoConfig.getDataSource());
     }
 
     public List<PageInfo> getAll() {
@@ -36,5 +31,9 @@ public class PageDao {
                 pageInfo.getContent(),
                 pageInfo.getUrl(),
                 107);
+    }
+
+    public String getPageUrlById(String id) {
+        return jdbcTemplate.queryForObject(SQL_GET_URL_BY_ID, new Object[]{id}, String.class);
     }
 }
